@@ -1,10 +1,16 @@
 ---
+- name: Check if roundcube user exists
+  action: shell /usr/bin/getent passwd {{ roundcube_user }} | /usr/bin/wc -l | tr -d ' '
+  register: user_exist
+  ignore_errors: True
+  changed_when: "user_exist.rc != 0"
 
 - name: ensure roundcube user is present
   user:
     name: "{{ roundcube_user }}"
     home: "{{ roundcube_user_home }}"
     shell: "{{ roundcube_user_shell }}"
+  when: user_exist.changed
 
 - name: ensure database user is present
   mysql_user:
